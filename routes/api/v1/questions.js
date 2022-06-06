@@ -7,7 +7,6 @@ console.log('inside questions router');
 
 router.post('/create',userController.createQuestion);
 
-
 router.get('/:id',userController.viewQuestion);
 
 router.post('/:id/options/create',userController.addOption);

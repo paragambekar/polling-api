@@ -10,7 +10,7 @@ module.exports.createQuestion = async function(request,response){
         console.log('Question in create qu',question);
         return response.status(200).json({
             status : 'success',
-            message : "New Question Created Successfully"
+            message : "New Question Created Successfully",
         });
     }catch(error){
         return response.status(500).json({
@@ -58,7 +58,7 @@ module.exports.addOption = async function(request,response){
             question.save();
             return response.status(200).json({
                 status : 'success',
-                message : 'Option Added For The Question Successfully'
+                message : 'Option Added For The Question Successfully',
             })
         }else{
             // if not found return saying question not found
@@ -99,7 +99,7 @@ module.exports.deleteQuestion = async function(request,response){
 
         return response.status(200).json({
             status : 'success',
-            message : 'Question Deleted Successfully'
+            message : 'Question Deleted Successfully',
         })
     }catch(error){
         return response.status(500).json({
