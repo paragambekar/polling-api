@@ -12,6 +12,9 @@ const optionScehma = new mongoose.Schema({
     },
     votes : {
         type : Number
+    },
+    link_to_vote : {
+        type : String
     }
 },{
     timestamps : true

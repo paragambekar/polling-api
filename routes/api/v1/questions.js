@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const userController = require('../../../controllers/api/v1/questions-controller');
-console.log('inside questions controller');
+console.log('inside questions router');
 
 
 router.post('/create',userController.createQuestion);

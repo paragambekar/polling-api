@@ -1,4 +1,4 @@
-const { fail } = require('assert');
+// const { fail } = require('assert');
 const mongoose = require('mongoose');
 const Question = require('../../../model/question');
 const Option = require('../../../model/option');
@@ -8,13 +8,14 @@ module.exports.createQuestion = async function(request,response){
     console.log('Request body to create new question',request.body);
     try{
         let question = await Question.create(request.body);
+        console.log('Question in create qu',question);
         return response.status(200).json({
             status : 'success',
             message : "New Question Created Successfully"
         });
     }catch(error){
         return response.status(500).json({
-            status : fail,
+            status : 'fail',
             message : "Internal Server Error" 
         })
     }
@@ -42,7 +43,7 @@ module.exports.viewQuestion = async function(request,response){
     }catch(error){
         console.log(error);
         return response.status(500).json({
-            message : "Internal Server Error" 
+            message : "Internal hjjjjj Server Error" 
         })
     }
     // console.log('request.params',request.params);
@@ -64,11 +65,16 @@ module.exports.addOption = async function(request,response){
 
     console.log('request.params',request.params);
     console.log('Request body to add optins', request.body);
-
+    
+    
     let question = await Question.findById(request.params.id);
     if(question){
         let option = await Option.create(request.body);
+        let linkToVote = `http://${request.headers.host}/api/v1/options/${option._id}/add_vote`;
         question.options.push(option);
+        option.link_to_vote = linkToVote;
+        // option.votes = 0;
+        option.save();
         question.save();
         console.log('Question',question); 
     }else{
@@ -78,7 +84,7 @@ module.exports.addOption = async function(request,response){
     }
 
     return response.status(500).json({
-        message : "Internal Server Error" 
+        message : "Internal Serbbbbver Error" 
     })
 
 
