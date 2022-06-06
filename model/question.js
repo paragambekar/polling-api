@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Define Schema for question 
 const questionSchema = new mongoose.Schema({
 
     question : {

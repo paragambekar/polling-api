@@ -1,9 +1,8 @@
-// const { fail } = require('assert');
 const mongoose = require('mongoose');
 const Question = require('../../../model/question');
 const Option = require('../../../model/option');
 
-
+// Create new question
 module.exports.createQuestion = async function(request,response){
     console.log('Request body to create new question',request.body);
     try{
@@ -22,99 +21,89 @@ module.exports.createQuestion = async function(request,response){
 
 }
 
+// View Question 
 module.exports.viewQuestion = async function(request,response){
 
-    const questionId = request.params;
-    // console.log(request.body.params);
     try{
-        const question = await Question.findById(request.params.id).populate({
-            path : 'options'
-        });
+        const data = await Question.findById(request.params.id).populate('options' , '_id option votes link_to_vote');
+        console.log('q------------>',data);
 
-        const q = await Question.findById(request.params.id).populate('options' , '-question -createdAt -updatedAt -__v');
-        console.log('q------------>',q);
-
-        console.log('Question-------->',question);
+        console.log('Question-------->',data);
         return response.status(200).json({
             status : 'success',
-            data : question,
-            q : q
+            data : data
         })
     }catch(error){
         console.log(error);
         return response.status(500).json({
-            message : "Internal hjjjjj Server Error" 
+            message : "Internal Server Error" 
         })
     }
-    // console.log('request.params',request.params);
-   
-
-    // if(question){
-    //     return response.status(200).json({
-    //         question : question,
-    //     })
-    // }else{
-    //     return response.status(500).json({
-    //         message : "Internal Server Error" 
-    //     })
-    // }
-   
 }
 
+// Add option to a particular question
 module.exports.addOption = async function(request,response){
 
-    console.log('request.params',request.params);
-    console.log('Request body to add optins', request.body);
-    
-    
-    let question = await Question.findById(request.params.id);
-    if(question){
-        let option = await Option.create(request.body);
-        option.question = request.params.id;
-        let linkToVote = `http://${request.headers.host}/api/v1/options/${option._id}/add_vote`;
-        question.options.push(option);
-        option.link_to_vote = linkToVote;
-        // option.votes = 0;
-        option.save();
-        question.save();
-        console.log('Question',question); 
-    }else{
+    try{
+        // find the question to which option need to be added with the params in url 
+        let question = await Question.findById(request.params.id);
+        if(question){
+            // if question found create an option assosociated with the question
+            let option = await Option.create(request.body);
+            option.question = request.params.id;
+            let linkToVote = `http://${request.headers.host}/api/v1/options/${option._id}/add_vote`;
+            question.options.push(option);
+            option.link_to_vote = linkToVote;
+            option.save();
+            question.save();
+            return response.status(200).json({
+                status : 'success',
+                message : 'Option Added For The Question Successfully'
+            })
+        }else{
+            // if not found return saying question not found
+            return response.status(404).json({
+                status : 'fail',
+                message : 'No Question Found With The Provided ID'
+            })
+        }
+    }catch(error){
         return response.status(500).json({
-            message : 'No question found with the provided id'
+            status : 'fail',
+            message : "Internal Server Error" 
         })
     }
-
-    return response.status(500).json({
-        message : "Internal Serbbbbver Error" 
-    })
-
-
 }
 
+// Delete a question
 module.exports.deleteQuestion = async function(request,response){
 
     try{
-
+        // find the question which needs to be deleted with the params in url
         let question = await Question.findById(request.params.id).populate('options');
         console.log('Question in delete question', question);
 
+        // check if the options of the question have any votes
         for(option of question.options){
             if(option.votes){
-                return response.status(400).json({
-                    message : 'Cannot delete question because options are already voted'
+                // if votes are present we cant delete the question
+                return response.status(403).json({
+                    status : 'unauthorized',
+                    message : 'Cannot Delete Question, Options Are Already Voted'
                 })
             }
         }
 
+        // if votes are not present for the option of the question the question can be deleted
         await Question.findByIdAndDelete(request.params.id)
 
         return response.status(200).json({
-            message : "deleted question"
+            status : 'success',
+            message : 'Question Deleted Successfully'
         })
-        
-
     }catch(error){
         return response.status(500).json({
+            status : 'fail',
             message : "Internal server error"
         })
     }

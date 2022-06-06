@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Define Schema for Option for questions
 const optionScehma = new mongoose.Schema({
 
     option : {
