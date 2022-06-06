@@ -7,7 +7,7 @@ router.get('/', (request,respose) => {
     })
 })
 
-router.use('/api', require('./api/index'));
+router.use('/api', require('./api'));
 
 
 module.exports = router;
