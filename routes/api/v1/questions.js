@@ -12,4 +12,6 @@ router.get('/:id',userController.viewQuestion);
 
 router.post('/:id/options/create',userController.addOption);
 
+router.get('/:id/delete', userController.deleteQuestion);
+
 module.exports = router;

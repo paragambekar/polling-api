@@ -70,6 +70,7 @@ module.exports.addOption = async function(request,response){
     let question = await Question.findById(request.params.id);
     if(question){
         let option = await Option.create(request.body);
+        option.question = request.params.id;
         let linkToVote = `http://${request.headers.host}/api/v1/options/${option._id}/add_vote`;
         question.options.push(option);
         option.link_to_vote = linkToVote;
@@ -87,5 +88,35 @@ module.exports.addOption = async function(request,response){
         message : "Internal Serbbbbver Error" 
     })
 
+
+}
+
+module.exports.deleteQuestion = async function(request,response){
+
+    try{
+
+        let question = await Question.findById(request.params.id).populate('options');
+        console.log('Question in delete question', question);
+
+        for(option of question.options){
+            if(option.votes){
+                return response.status(400).json({
+                    message : 'Cannot delete question because options are already voted'
+                })
+            }
+        }
+
+        await Question.findByIdAndDelete(request.params.id)
+
+        return response.status(200).json({
+            message : "deleted question"
+        })
+        
+
+    }catch(error){
+        return response.status(500).json({
+            message : "Internal server error"
+        })
+    }
 
 }
